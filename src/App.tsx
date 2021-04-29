@@ -1,25 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ChakraProvider, Container } from "@chakra-ui/react";
+import { useRef } from "react";
+import { w3cwebsocket as W3CWebSocket } from "websocket";
+
+const client = new W3CWebSocket("ws://127.0.0.1:8000");
+
+const useComponentWillMount = (func: Function) => {
+  const willMount = useRef(true);
+
+  if (willMount.current) func();
+
+  willMount.current = false;
+};
 
 function App() {
+  useComponentWillMount(() => {
+    client.onopen = () => {
+      console.log("WebSocket Client Connected");
+    };
+    client.onmessage = (message) => {
+      console.log(message);
+    };
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ChakraProvider>
+      <Container maxW="container.2xl"></Container>
+    </ChakraProvider>
   );
 }
 
